@@ -1,6 +1,3 @@
-# Collaborators
-Markus Bink (Github: markusbink), Alex Odorizzi (Github: odorizziAlex), Timo Krapf (Github: timokrapf)
-
 # Projekt
 
 Mit der App "PostingBoard" können angehörige der Uni Regensburg, Firmen, Clubbetreiber uvm. Plakate über Veranstaltungen, VP-Stunden, Vorträge uvm. hochladen, speichern und filtern. Somit wird eine zentrale Anlaufstelle für alle Plakate geschaffen.
