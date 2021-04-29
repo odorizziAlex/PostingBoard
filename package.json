@@ -1,0 +1,24 @@
+{
+  "name": "projekt-starter-mme-ss19",
+  "version": "1.0.0",
+  "description": "Startercode für die Abschlussprojekte des MME-Kurses im Sommersemester 2019",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js ./app 8000"
+  },
+  "author": "Alexander Bazo <alexander.bazo@ur.de>",
+  "license": "MIT",
+  "dependencies": {
+    "browser-image-compression": "^1.0.6",
+    "addressparser": "^1.0.1",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "firebase": "^6.3.5",
+    "ics": "^2.16.0",
+    "nodemailer": "^6.3.0"
+  }
+}

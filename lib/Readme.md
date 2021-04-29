@@ -1,0 +1,5 @@
+# Quellcode (Node.js)
+
+Der AppServer Klasse wurde eine route hinzugefügt, mit deren Hilfe eine Email versendet wird. Das versenden geschieht über die Callback Methode postMessage. Über die createTransport Methode des Nodemailers werden die Zugangsdaten für die eigens für dieses Projekt erzeugte Email Adresse noreply.postingboard@gmail.de eingegeben und somit ein Zugang gelegt. 
+Die createICSFile() Methode erstellt ein ICS File, das der zu sendenden Email angehängt wird. Anschließend wird über transporter.sendMail() von unserer Email Adresse eine Email an den, vom User eingegebenen Empfänger, gesendet. Dies wird alles mithilfe einer async-await Funktion durchgeführt, da die Funktion transporter.sendMail() einen Promise zurück liefert.
+Wenn diese Aktion durchgeführt wurde, wird die seite neu geladen und alle Werte zurückgesetzt.

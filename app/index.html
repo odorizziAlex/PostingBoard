@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<!-- All icons used are from https://feathericons.com/ -->
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostingBoard | Finding University related events the easy way</title>
+    <link rel="stylesheet" href="resources/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans:300,500,600&display=swap" rel="stylesheet">
+    <!-- Firebase for User Authentication -->
+    <script defer src="https://www.gstatic.com/firebasejs/6.3.5/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/6.3.5/firebase-auth.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/6.3.5/firebase-firestore.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/6.3.5/firebase-storage.js"></script>
+    <script defer src="./resources/js/user-authentication/init-firebase.js"></script>
+    <script type="text/javascript" defer src="https://cdn.jsdelivr.net/npm/browser-image-compression@latest/dist/browser-image-compression.js"></script>
+</head>
+<body>
+    <div class="while-upload-overlay">
+        <span class="spinner"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-refresh-ccw">
+                <polyline points="1 4 1 10 7 10"></polyline>
+                <polyline points="23 20 23 14 17 14"></polyline>
+                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+            </svg></span>
+    </div>
+    <div class="toast hidden">E-Mail wurde versendet.</div>
+    <div class="overlay hidden"></div>
+    <div class="overlay second-layer-overlay hidden"></div>
+    <div class="overlay third-layer-overlay hidden"></div>
+    <div class="popup create-post hidden">
+        <div class="while-upload-overlay hidden">
+            <span class="spinner"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-refresh-ccw">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <polyline points="23 20 23 14 17 14"></polyline>
+                    <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                </svg></span>
+        </div>
+        <span class="close"></span>
+        <div class="col-2">
+            <h3 class="upload-popup-title">Plakat hochladen</h3>
+            <div class="image-field">
+                <span>Datei (.jpg, .png) reinziehen oder <a id="uploader">hier auswählen.</a></span>
+            </div>
+            <input class="upload" type="file">
+            <a class="warning"></a>
+        </div>
+        <div class="col-2">
+            <div class="form">
+                <div class="input-wrapper">
+                    <h5>Titel</h5>
+                    <input type="text" name="titel" class="input-title" maxlength="50">
+                    <a class="warning"></a>
+                </div>
+                <div class="input-wrapper">
+                    <h5>Zeitraum</h5>
+                    <div class="date-picker">
+                        <div id="from" class="dropdown date">
+                            <a class="button">Von</a>
+                            <ul class="dropdown-results date-from"></ul>
+                        </div>
+                        <div id="to" class="dropdown date">
+                            <a class="button">Bis</a>
+                            <ul class="dropdown-results date-to"></ul>
+                        </div>
+                        <a class="warning"></a>
+                    </div>
+                </div>
+
+                <div class="input-wrapper">
+                    <h5>Fakultät</h5>
+                    <div class="dropdown faculty">
+                        <a class="button">Fakultät auswählen</a>
+                        <a class="warning"></a>
+                        <ul class="dropdown-results">
+                            <li>Katholische Theologie</li>
+                            <li>Rechtswissenschaft</li>
+                            <li>Wirtschaftswissenschaften</li>
+                            <li>Medizin</li>
+                            <li>PT</li>
+                            <li>Psycho</li>
+                            <li>Sprach.Lit</li>
+                            <li>Mathematik</li>
+                            <li>Physik</li>
+                            <li>Biologie</li>
+                            <li>Chemie & Pharmazie</li>
+                            <li>sonstige</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="input-wrapper">
+                    <h5>Kategorie</h5>
+                    <div class="dropdown category">
+                        <a class="button">Kategorie auswählen</a>
+                        <a class="warning"></a>
+                        <ul class="dropdown-results">
+                            <li>VP-Stunden</li>
+                            <li>Stellenanzeigen</li>
+                            <li>Veranstaltungen</li>
+                            <li>sonstige</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <a class="confirm button highlight">Speichern und Hinzufügen</a>
+            <span class="spinner hidden"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-refresh-ccw">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <polyline points="23 20 23 14 17 14"></polyline>
+                    <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                </svg></span>
+        </div>
+    </div>
+    <div class="popup detail-post hidden">
+        <span class="close detail-post-close"></span>
+        <div class="wrapper-edit-post hidden">
+            <div class="button secondary small edit"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>Bearbeiten</div>
+            <div class="button secondary small delete"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>Posting löschen</div>
+        </div>
+        <div class="col-2 detail-post-image">
+            <img src="">
+        </div>
+        <div class="col-2">
+            <div>
+                <div class="post-infos">
+                    <div class="date-wrapper">
+                        <div class="date from detail-post-from"></div>
+                        <div class="date-divider">-</div>
+                        <div class="date to detail-view-to"></div>
+                    </div>
+                    <div class="category detail-post detail-post-category"></div>
+                </div>
+                <h4 class="detail-post-title"></h4>
+                <div class="faculty detail-post-faculty">
+                    <span class="faculty-color"></span>
+                    <span class="faculty-name"></span>
+                </div>
+            </div>
+            <div class="action-wrapper">
+                <div class="download download-button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg></div>
+                <div class="favourite-wrapper">
+                    <div class="favourite-checkbox"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-star">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg></div>
+                    <div class="detail-fav-number">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="popup register hidden">
+        <span class="close"></span>
+        <h3>Registrieren</h3>
+        <form action="">
+            <div class="input-wrapper">
+                <h5>Benutzername</h5>
+                <input type="text" name="Username" class="username">
+                <span class="warning"></span>
+            </div>
+            <div class="input-wrapper">
+                <h5>E-Mail Adresse</h5>
+                <input type="email" name="E-Mail" class="email">
+                <span class="warning"></span>
+            </div>
+            <div class="input-wrapper">
+                <h5>Passwort</h5>
+                <input type="password" name="Password" class="password">
+                <span class="warning"></span>
+            </div>
+            <a class="confirm button register">Registrieren</a>
+        </form>
+    </div>
+    <div class="popup login hidden">
+        <span class="close"></span>
+        <h3>Einloggen</h3>
+        <form action="">
+            <div class="input-wrapper">
+                <h5>E-Mail Adresse</h5>
+                <input type="email" name="E-Mail" class="email">
+                <span class="warning"></span>
+            </div>
+            <div class="input-wrapper">
+                <h5>Passwort</h5>
+                <input type="password" name="Password" class="password">
+                <span class="warning"></span>
+                <a class="link forgot-password">Passwort vergessen?</a>
+            </div>
+            <a class="confirm button login">Einloggen</a>
+        </form>
+    </div>
+    <div class="popup forgot-password hidden">
+        <span class="close"></span>
+        <h3>Passwort vergessen?</h3>
+        <p class="description">Bitte gebe deine Email-Adresse ein, die zu deinem Profil gehört.</p>
+        <form action="">
+            <div class="input-wrapper">
+                <h5>E-Mail Adresse</h5>
+                <input type="email" name="E-Mail" class="email">
+                <span class="warning"></span>
+            </div>
+            <a class="confirm button send-email">E-Mail senden</a>
+        </form>
+    </div>
+    <div class="popup popup-download-ics hidden">
+        <span class="close"></span>
+        <h3>Termin senden</h3>
+        <p class="description">Gib deine E-Mail Adresse ein, um dir den Post als Event-Datei (.ics) zusenden zu lassen.</p>
+        <form method="POST" action="/app">
+            <div class="input-wrapper">
+                <h5>E-Mail Adresse</h5>
+                <input type="email" name="email" class="email">
+                <input id="title" class="hidden" name="title">
+                <input id="start" class="hidden" name="start">
+                <input id="end" class="hidden" name="end">
+                <input id="category" class="hidden" name="category">
+                <input id="faculty" class="hidden" name="faculty">
+            </div>
+            <button type="submit" class="confirm button send-email disable-button">E-Mail senden</button>
+        </form>
+    </div>
+    <div class="popup reset-password hidden">
+        <span class="close"></span>
+        <h3>Neues Passwort</h3>
+        <p class="description">Bitte ein neues Passwort vergeben.</p>
+        <form action="">
+            <div class="input-wrapper">
+                <h5>Passwort</h5>
+                <input type="password" name="Passwort" class="password">
+                <span class="warning"></span>
+            </div>
+            <a class="confirm button reset">Passwort speichern</a>
+        </form>
+    </div>
+    <div class="popup edit-profile hidden">
+        <span class="close"></span>
+        <h3>Profil bearbeiten</h3>
+        <form action="">
+            <div class="input-wrapper">
+                <h5>Benutzername</h5>
+                <input type="text" name="Username" class="username">
+                <span class="warning"></span>
+                <a class="button small username"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-save">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg></a>
+            </div>
+            <div class="input-wrapper">
+                <h5>E-Mail Adresse</h5>
+                <input type="email" name="E-Mail" class="email">
+                <span class="warning"></span>
+                <a class="button small email"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-save">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg></a>
+            </div>
+            <div class="checkbox"><input id="checkbox-change-password" class="checkbox-show-password" type="checkbox" class=""><label for="checkbox-change-password">Passwort ändern?</label></div>
+            <div class="change-password-wrapper hidden">
+                <div class="input-wrapper">
+                    <h5>Neues Passwort</h5>
+                    <input type="password" name="Password" class="password new">
+                    <span class="warning"></span>
+                </div>
+                <div class="input-wrapper">
+                    <h5>Neues Passwort wiederholen</h5>
+                    <input type="password" name="Password" class="password new-repeat">
+                    <span class="warning"></span>
+                </div>
+                <a class="button password-btn">Passwort ändern</a>
+            </div>
+        </form>
+    </div>
+    <div class="popup popup-delete-post hidden">
+        <h3>Sicher, dass der Post gelöscht werden soll?</h3>
+        <p class="description">Diese Aktion kann nicht wiederrufen werden.</p>
+        <form action="">
+            <div class="button secondary small cancel-post-deletion">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg> Abbrechen</div>
+            <div class="button secondary small delete delete-post-final">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+                Löschen, bitte.</div>
+        </form>
+    </div>
+    <div class="popup-post-image hidden">
+        <img src="">
+    </div>
+    <div class="popup popup-delete-profile hidden">
+        <h3>Sicher, dass dein Profil und alle zugehörigen Postings gelöscht werden soll?</h3>
+        <p class="description">Diese Aktion kann nicht wiederrufen werden.</p>
+        <form action="">
+            <div class="button secondary small cancel-profile-deletion">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>Abbrechen</div>
+            <div class="button secondary small delete delete-profile-final">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+                Löschen, bitte.</div>
+        </form>
+    </div>
+    <div class="popup no-connection-popup hidden">
+        <div class="connection">
+            <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-radio">
+                <circle cx="12" cy="12" r="2"></circle>
+                <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"></path>
+            </svg>
+        </div>
+        <h3 class="connection connection-title">Keine Verbindung zum Internet...</h3>
+        <p class="connection-description">Ihr Computer ist offline.</p>
+    </div>
+    <div class="slide-menu">
+        <div class="toggle-menu-icon hidden"></div>
+        <div class="profile-area">
+            <h3 class="username">John Doe</h3>
+            <h5 class="email-address">john.doe@stud.uni-regensburg.de</h5>
+            <a class="button secondary edit-profile"><svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="settings-icon">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>Profil bearbeiten</a>
+            <a class="button secondary delete delete-profile"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>Profil löschen</a>
+        </div>
+        <ul class="user-filters">
+            <li class="own-posts">Meine Posts</li>
+            <li class="favourite-posts">Meine Favoriten</li>
+        </ul>
+        <div class="button log-out"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logout-icon">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>Ausloggen</div>
+    </div>
+    <div class="header">
+        <div class="logo-wrapper">
+            <img class="header-logo" src="./resources/images/postingboard-logo.svg" alt="PostingBoard Logo">
+            <h1>Alle Posts</h1>
+        </div>
+        <div class="button-wrapper hidden">
+            <a class="button register secondary">Registrieren</a>
+            <a class="button login">Einloggen</a>
+        </div>
+    </div>
+    <div class="app-wrapper">
+        <div class="filter-wrapper">
+            <div class="filters">
+                <div class="dropdown faculty">
+                    <div class="filter-button-wrapper">
+                        <a class="faculty-filter-button">Alle Fakultäten</a>
+                        <a class="filter-faculty-reset filter-faculty-reset-button hidden"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg></a>
+                    </div>
+                    <ul class="dropdown-results faculty-filter">
+                        <li>Katholische Theologie</li>
+                        <li>Rechtswissenschaft</li>
+                        <li>Wirtschaftswissenschaften</li>
+                        <li>Medizin</li>
+                        <li>PT</li>
+                        <li>Psycho</li>
+                        <li>Sprach.Lit</li>
+                        <li>Mathematik</li>
+                        <li>Physik</li>
+                        <li>Biologie</li>
+                        <li>Chemie & Pharmazie</li>
+                        <li>sonstige</li>
+                    </ul>
+                </div>
+                <div id="filter" class="dropdown date">
+                    <div class="filter-button-wrapper">
+                        <a class="date-filter-button">Beliebiger Zeitraum</a>
+                        <a class="filter-date-reset filter-date-reset-button hidden"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg></a>
+                    </div>
+                    <ul class="dropdown-results date-filter">
+                    </ul>
+                </div>
+                <div class="dropdown category">
+                    <div class="filter-button-wrapper">
+                        <a class="category-filter-button">Alle Kategorien</a>
+                        <a class="filter-category-reset filter-category-reset-button hidden"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg></a>
+                    </div>
+                    <ul class="dropdown-results category-filter">
+                        <li>VP-Stunden</li>
+                        <li>Stellenanzeigen</li>
+                        <li>Veranstaltungen</li>
+                        <li>sonstige</li>
+                    </ul>
+                </div>
+                <div class="dropdown order">
+                    <div class="filter-button-wrapper">
+                        <a class="order-filter-button">Reihenfolge</a>
+                        <a class="filter-order-reset filter-order-reset-button hidden"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg></a>
+                    </div>
+                    <ul class="dropdown-results order-filter">
+                        <li>Zeit absteigend</li>
+                        <li>Neueste zuerst</li>
+                        <li>Beliebteste zuerst</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="info verify-profile hidden">
+                <p>Verifiziere dein Profil, um Postings hochladen zu können.</p>
+                <div class="button secondary small hidden">Jetzt verifizieren</div>
+            </div>
+            <a class="button add-post highlight hidden">Post hinzufügen</a>
+        </div>
+        <div class="new-posts-info-wrapper">
+            <span class="new-posts-available hidden"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-refresh-ccw">
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <polyline points="23 20 23 14 17 14"></polyline>
+                    <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                </svg>Neue Posts laden</span>
+        </div>
+
+        <div class="post-wrapper">
+        </div>
+        <div class="no-posts-wrapper hidden">
+            <h3>Keine Posts vorhanden</h3>
+            <!-- Image from https://undraw.co -->
+            <img src="./resources/images/posts-empty-state.svg" alt="Keine Posts vorhanden">
+        </div>
+        <div class="load-more-wrapper">
+            <a class="button hidden"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>Weitere Anzeigen</a>
+        </div>
+    </div>
+    <template id="post-template">
+        <div class="post">
+            <div class="post-overlay">
+                <div class="date-wrapper">
+                    <span class="date from"></span>
+                    <div class="date-divider">-</div>
+                    <span class="date to"></span>
+                </div>
+                <h4>Titel der Veranstaltung</h4>
+                <span class="faculty-color"></span>
+            </div>
+            <img id="img">
+        </div>
+    </template>
+    <template id="calender-template">
+        <!-- Calendar html based on the code from this source: https://webdevtrick.com/html-css-javascript-calendar/ -->
+        <div class="calender-wrapper">
+            <div class="calender-header">
+                <div class="arrow arrow-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-left">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </div>
+                <div>
+                    <span class="month">Monat</span>
+                    <span class="year">2000</span>
+                </div>
+                <div class="arrow arrow-right">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </div>
+            </div>
+            <div class="calender">
+                <table class="calender-table">
+                    <thead>
+                        <tr class="weekdays">
+                            <th data-weekday="Sonntag" data-column="0">So</th>
+                            <th data-weekday="Montag" data-column="1">Mo</th>
+                            <th data-weekday="Dienstag" data-column="2">Di</th>
+                            <th data-weekday="Mittwoch" data-column="3">Mi</th>
+                            <th data-weekday="Donnerstag" data-column="4">Do</th>
+                            <th data-weekday="Freitag" data-column="5">Fr</th>
+                            <th data-weekday="Samstag" data-column="6">Sa</th>
+                        </tr>
+                    </thead>
+                    <tbody class="day-rows">
+                        <tr class="days" data-row="0">
+                            <td class="day-field" data-column="0"></td>
+                            <td class="day-field" data-column="1"></td>
+                            <td class="day-field" data-column="2"></td>
+                            <td class="day-field" data-column="3"></td>
+                            <td class="day-field" data-column="4"></td>
+                            <td class="day-field" data-column="5"></td>
+                            <td class="day-field" data-column="6"></td>
+                        </tr>
+                        <tr class="days" data-row="1">
+                            <td class="day-field" data-column="0"></td>
+                            <td class="day-field" data-column="1"></td>
+                            <td class="day-field" data-column="2"></td>
+                            <td class="day-field" data-column="3"></td>
+                            <td class="day-field" data-column="4"></td>
+                            <td class="day-field" data-column="5"></td>
+                            <td class="day-field" data-column="6"></td>
+                        </tr>
+                        <tr class="days" data-row="2">
+                            <td class="day-field" data-column="0"></td>
+                            <td class="day-field" data-column="1"></td>
+                            <td class="day-field" data-column="2"></td>
+                            <td class="day-field" data-column="3"></td>
+                            <td class="day-field" data-column="4"></td>
+                            <td class="day-field" data-column="5"></td>
+                            <td class="day-field" data-column="6"></td>
+                        </tr>
+                        <tr class="days" data-row="3">
+                            <td class="day-field" data-column="0"></td>
+                            <td class="day-field" data-column="1"></td>
+                            <td class="day-field" data-column="2"></td>
+                            <td class="day-field" data-column="3"></td>
+                            <td class="day-field" data-column="4"></td>
+                            <td class="day-field" data-column="5"></td>
+                            <td class="day-field" data-column="6"></td>
+                        </tr>
+                        <tr class="days" data-row="4">
+                            <td class="day-field" data-column="0"></td>
+                            <td class="day-field" data-column="1"></td>
+                            <td class="day-field" data-column="2"></td>
+                            <td class="day-field" data-column="3"></td>
+                            <td class="day-field" data-column="4"></td>
+                            <td class="day-field" data-column="5"></td>
+                            <td class="day-field" data-column="6"></td>
+                        </tr>
+                        <tr class="days" data-row="5">
+                            <td class="day-field" data-column="0"></td>
+                            <td class="day-field" data-column="1"></td>
+                            <td class="day-field" data-column="2"></td>
+                            <td class="day-field" data-column="3"></td>
+                            <td class="day-field" data-column="4"></td>
+                            <td class="day-field" data-column="5"></td>
+                            <td class="day-field" data-column="6"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </template>
+    <script type="module" src="resources/js/index.js"></script>
+</body>
+</html>
